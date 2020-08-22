@@ -19,7 +19,6 @@ pipeline {
       steps {
         parallel (
           node: { sh "npm -v" },
-          docker: { sh "docker -v" }
         )
       }
     }
