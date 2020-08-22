@@ -1,14 +1,10 @@
 #!/usr/bin/env groovy
 pipeline { 
-  agent {
-        docker {
-            image 'node:6-alpine'
-            args '-p 3000:3000'
-        }
-    }
-    environment {
-        CI = 'true'
-    }
+  agent any
+  tools {
+    nodejs 'nodejs'
+  }
+ 
   stages {
     stage ('Checkout Code') {
       steps {
@@ -19,6 +15,7 @@ pipeline {
       steps {
         parallel (
           node: { sh "npm -v" },
+          docker: { sh "docker -v" }
         )
       }
     }
