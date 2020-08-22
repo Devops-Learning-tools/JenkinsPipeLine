@@ -1,30 +1,39 @@
+// Jenkinsfile
+
 pipeline {
-    agent {
+  // Assign to docker slave(s) label, could also be 'any'
+  agent {
+    label 'docker' 
+  }
+
+  stages {
+    stage('Docker node test') {
+      agent {
         docker {
-            image 'node:6-alpine'
-            args '-p 3000:3000'
+          // Set both label and image
+          label 'docker'
+          image 'node:7-alpine'
+          args '--name docker-node' // list any args
         }
+      }
+      steps {
+        // Steps run in node:7-alpine docker container on docker slave
+        sh 'node --version'
+      }
     }
-    environment { 
-        CI = 'true'
+
+    stage('Docker maven test') {
+      agent {
+        docker {
+          // Set both label and image
+          label 'docker'
+          image 'maven:3-alpine'
+        }
+      }
+      steps {
+        // Steps run in maven:3-alpine docker container on docker slave
+        sh 'mvn --version'
+      }
     }
-    stages {
-        stage('Build') {
-            steps {
-                sh 'npm install'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh './jenkins/scripts/test.sh'
-            }
-        }
-        stage('Deliver') { 
-            steps {
-                sh './jenkins/scripts/deliver.sh' 
-                input message: 'Finished using the web site? (Click "Proceed" to continue)' 
-                sh './jenkins/scripts/kill.sh' 
-            }
-        }
-    }
-}
+  }
+} 
